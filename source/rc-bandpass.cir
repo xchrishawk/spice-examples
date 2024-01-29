@@ -1,0 +1,43 @@
+*
+* rc-bandpass.cir
+* Chris Vig (chris@invictus.so)
+*
+
+.title RC Band-Pass Filter
+
+*** Parameters ***
+
+* AC Source
+.param SOURCE_V         = 100
+
+* Low-Pass Filter
+.param LOPASS_R         = 10e3
+.param LOPASS_C         = 1e-9
+
+* High-Pass Filter
+.param HIPASS_R         = 100e3
+.param HIPASS_C         = 2e-9
+
+* Load
+.param LOAD_R           = 1e6
+
+*** Netlist ***
+
+v_source                v_in    0               ac {SOURCE_V}
+r_lo                    v_in    v_int           {LOPASS_R}
+c_lo                    v_int   0               {LOPASS_C}
+c_hi                    v_int   v_out           {HIPASS_C}
+r_hi                    v_out   0               {HIPASS_R}
+r_load                  v_out   0               {LOAD_R}
+
+*** Commands ***
+
+.control
+
+  * AC small signal analysis
+  ac dec 100 100e0 1e6
+  gnuplot output/rc-bandpass.dat v(v_out)
+
+.endc
+
+.end

@@ -1,0 +1,60 @@
+*
+* rc-lowpass.cir
+* Chris Vig (chris@invictus.so)
+*
+
+.title RC Low-Pass Filter
+
+*** Parameters ***
+
+* AC Source
+.param SOURCE_V         = 10
+.param SOURCE_F         = 1e3
+
+* AC Noise
+.param NOISE_V          = 3
+.param NOISE_F          = 16e3
+
+* Filter
+.param FILTER_R         = 10e3
+.param FILTER_C         = 8e-9
+
+* Load
+.param LOAD_R = 100e3
+
+*** Variables ***
+
+.control
+
+  * Simulation Parameters
+  set SIM_LENGTH        = 5e-3
+  set SIM_STEP          = 1e-6
+
+  * Fourier Analysis
+  set FUNDAMENTAL_F     = 1e3
+  set NFREQS            = 20
+
+.endc
+
+*** Netlist ***
+
+v_source                1       0               ac {SOURCE_V} dc sin(0 {SOURCE_V} {SOURCE_F})
+v_noise                 v_in    1               ac {NOISE_V} dc sin(0 {NOISE_V} {NOISE_F})
+r_filter                v_in    v_out           {FILTER_R}
+c_filter                v_out   0               {FILTER_C}
+r_load                  v_out   0               {LOAD_R}
+
+*** Commands ***
+
+.control
+
+  * Run time-domain simulation and plot output voltages
+  tran $SIM_STEP $SIM_LENGTH
+  gnuplot output/rc-lowpass.dat v(v_in) v(v_out) xlabel "Time (s)" ylabel "Voltage (V)"
+
+  * Get fourier analysis for voltages
+  fourier $FUNDAMENTAL_F v(v_in) v(v_out)
+
+.endc
+
+.end
